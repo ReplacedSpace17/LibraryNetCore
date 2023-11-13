@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Libros</title>
+</head>
+<body>
+    <h1>Libreria Siglo XXI</h1>
+    <h1>Lista de Libros</h1>
+ 
+    <label for="searchInput">Buscar por título:</label>
+    <input type="text" id="searchInput" oninput="searchBooks()" placeholder="Ingrese el título del libro">
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Capítulos</th>
+                <th>Páginas</th>
+                <th>Precio</th>
+                <th>Autor</th>
+            </tr>
+        </thead>
+        <tbody id="booksTableBody"></tbody>
+    </table>
+
+    <script>
+        let allBooks = []; // Almacena todos los libros para la búsqueda local
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchBooks();
+        });
+    
+        function fetchBooks() {
+            fetch("https://localhost:7185/api/books")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos recibidos:", data);
+                    allBooks = data.$values; // Guarda todos los libros para la búsqueda local
+                    displayBooks(allBooks);
+                    displayFirstBookTitle(allBooks);
+                })
+                .catch(error => console.error("Error al obtener libros:", error));
+        }
+    
+        function displayBooks(books) {
+    const tableBody = document.getElementById("booksTableBody");
+    tableBody.innerHTML = "";
+
+    books.forEach(book => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${book.id}</td>
+            <td>${book.title}</td>
+            <td>${book.chapters}</td>
+            <td>${book.pages}</td>
+            <td>${book.price}</td>
+            <td>${book.author ? book.author.name : 'Desconocido'}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+    
+        function displayFirstBookTitle(books) {
+            const firstBookTitle = document.getElementById("firstBookTitle");
+            if (books.length > 0) {
+                firstBookTitle.textContent = `Primer libro: ${books[0].title}`;
+            } else {
+                firstBookTitle.textContent = "No hay libros disponibles.";
+            }
+        }
+        function searchBooks() {
+    const searchInput = document.getElementById("searchInput");
+    const searchTerm = searchInput.value.toLowerCase();
+
+    const filteredBooks = allBooks.filter(book => book.title && book.title.toLowerCase().includes(searchTerm));
+    displayBooks(filteredBooks);
+}
+
+    </script>
+</body>
+</html>
